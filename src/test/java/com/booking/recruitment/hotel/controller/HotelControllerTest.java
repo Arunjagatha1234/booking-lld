@@ -47,6 +47,28 @@ class HotelControllerTest {
   }
 
   @Test
+  @DisplayName("When hotel is requested by id then only that hotel is returned")
+  void hotelByIdRequested_valid() throws Exception {
+    Hotel returnedHotel = mapper.readValue(
+      mockMvc
+            .perform(get("/hotel/1"))
+            .andExpect(status().is2xxSuccessful())
+              .andReturn().getResponse().getContentAsString(), Hotel.class);
+
+    assertThat(repository
+            .findById(1L)
+            .orElseThrow(IllegalStateException::new),
+            equalTo(returnedHotel));
+  }
+  @Test
+  @DisplayName("When hotel is requested by invalid id then exception returned")
+  void hotelByIdRequested_invalid() throws Exception {
+    mockMvc
+            .perform(get("/hotel/101"))
+            .andExpect(status().is4xxClientError());
+  }
+
+  @Test
   @DisplayName("When a hotel creation is requested then it is persisted")
   void hotelCreatedCorrectly() throws Exception {
     City city =
