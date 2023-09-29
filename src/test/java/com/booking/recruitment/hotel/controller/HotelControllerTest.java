@@ -20,8 +20,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasSize;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -53,7 +52,7 @@ class HotelControllerTest {
       mockMvc
             .perform(get("/hotel/1"))
             .andExpect(status().is2xxSuccessful())
-              .andReturn().getResponse().getContentAsString(), Hotel.class);
+            .andReturn().getResponse().getContentAsString(), Hotel.class);
 
     assertThat(repository
             .findById(1L)
@@ -101,5 +100,25 @@ class HotelControllerTest {
             .orElseThrow(
                 () -> new IllegalStateException("New Hotel has not been saved in the repository")),
         equalTo(newHotel));
+  }
+
+  @Test
+  @DisplayName("When hotel is requested to be deleted by invalid id then exception returned")
+  void deleteHotelByIdRequested_invalid() throws Exception {
+    mockMvc
+            .perform(delete("/hotel/101"))
+            .andExpect(status().is4xxClientError());
+  }
+
+  @Test
+  @DisplayName("When hotel is requested to be deleted by valid id then isDeleted set to true")
+  void deleteHotelByIdRequested_valid() throws Exception {
+    Hotel returnedHotel = mapper.readValue(
+            mockMvc
+                    .perform(delete("/hotel/1"))
+                    .andExpect(status().is2xxSuccessful())
+                    .andReturn().getResponse().getContentAsString(), Hotel.class);
+
+    assertThat(returnedHotel.isDeleted(), equalTo(true));
   }
 }
