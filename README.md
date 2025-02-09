@@ -39,3 +39,5 @@ Example implementations of functional tests (testing a bit of logic) and integra
 > GET /search/{cityId}?sortBy=distance
 
     Note: Distance is supposed to be calculated by Haversine formula.
+
+new readme file
